@@ -67,7 +67,7 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 			}
 
 			for _, event := range domainData.Events {
-				if event.Action == "expiration" || event.Action == "registration expiration" {
+				if event.Action == "expiration" {
 
 					expiryTime, err := time.Parse(time.RFC3339, event.Date)
 					if err != nil {
