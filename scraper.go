@@ -2,7 +2,6 @@ package domainreceiver
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -42,7 +41,7 @@ func parseExpiryTime(date string) (*time.Time, error) {
 			return &expiryTime, nil
 		}
 	}
-	return nil, fmt.Errorf("unable to parse `%s`, last parsing error: %s", err) 
+	return nil, fmt.Errorf("unable to parse `%s`, last parsing error: %s", err)
 }
 
 type domainScraper struct {
@@ -61,6 +60,16 @@ func newScraper(cfg *Config, settings receiver.Settings) *domainScraper {
 }
 
 func (ds *domainScraper) start(ctx context.Context, host component.Host) error {
+	// TODO: Use the OpenTelemetry HTTP client for RDAP client
+	httpClient, err := ds.cfg.ClientConfig.ToClient(ctx, host.GetExtensions(), ds.settings)
+	if err != nil {
+		return fmt.Errorf("failed to create the HTTP client: %w", err)
+	}
+
+	ds.rdapClient = &rdap.Client{
+		HTTP: httpClient,
+	}
+
 	return nil
 }
 
@@ -102,7 +111,7 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 					ds.mb.RecordDomainExpiryTimeDataPoint(now, int64(expiryTime.Unix()), d.Name)
 					mu.Unlock()
 
-					return 
+					return
 				}
 			}
 		}(domain)
@@ -111,4 +120,3 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 	wg.Wait()
 	return ds.mb.Emit(), nil
 }
-

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/solidassassin/domainreceiver/internal/metadata"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/scraper/scraperhelper"
 )
 
@@ -16,6 +17,7 @@ const (
 )
 
 type Config struct {
+	confighttp.ClientConfig        `mapstructure:".squash"`
 	scraperhelper.ControllerConfig `mapstructure:",squash"`
 	metadata.MetricsBuilderConfig  `mapstructure:",squash"`
 	Domains                        []*domainConfig `mapstructure:"domains"`

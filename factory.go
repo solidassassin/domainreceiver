@@ -2,7 +2,6 @@ package domainreceiver
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"go.opentelemetry.io/collector/component"
@@ -44,4 +43,3 @@ func createMetricsReceiver(_ context.Context, params receiver.Settings, baseConf
 
 	return scraperhelper.NewMetricsController(&cfg.ControllerConfig, params, consumer, scraperhelper.AddMetricsScraper(metadata.Type, s))
 }
-
