@@ -1,0 +1,25 @@
+type: domain
+
+status:
+  class: receiver
+  stability:
+    development: [metrics]
+  codeowners:
+    active: [solidassassin]
+
+resource_attributes:
+  domain.name:
+    enabled: true
+    description: The domain name to check expiration for
+    type: string
+
+metrics:
+  domain.expiry.time:
+    enabled: true
+    description: Unix timestamp of when the domain expires
+    stability:
+      level: development
+    unit: s
+    gauge:
+      value_type: int
+
