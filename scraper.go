@@ -53,14 +53,14 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 	wg.Add(len(ds.cfg.Domains))
 
 	for _, domain := range ds.cfg.Domains {
-		go func() {
+		go func(d *domainConfig) {
 			defer wg.Done()
 
-			domainData, err := ds.rdapClient.QueryDomain(domain.Name)
+			domainData, err := ds.rdapClient.QueryDomain(d.Name)
 			if err != nil {
 				ds.settings.Logger.Error(
 					"Failed to fetch RDAP data",
-					zap.String("domain", domain.Name),
+					zap.String("domain", d.Name),
 					zap.Error(err),
 				)
 				return
@@ -73,18 +73,18 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 					if err != nil {
 						ds.settings.Logger.Error(
 							"Failed to parse expiry date",
-							zap.String("domain", domain.Name),
+							zap.String("domain", d.Name),
 							zap.String("date", event.Date),
 						)
 						continue
 					}
 
 					mu.Lock()
-					ds.mb.RecordDomainExpiryTimeDataPoint(now, int64(expiryTime.Unix()), domain.Name)
+					ds.mb.RecordDomainExpiryTimeDataPoint(now, int64(expiryTime.Unix()), d.Name)
 					mu.Unlock()
 				}
 			}
-		}()
+		}(domain)
 	}
 
 	wg.Wait()
