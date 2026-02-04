@@ -16,17 +16,6 @@ import (
 	"github.com/solidassassin/domainreceiver/internal/metadata"
 )
 
-// Probably not the best practice
-type capturedFields captureFields
-
-func whoisLookup(domain string, timeout uint64, fields captureFields) capturedFields {
-
-	return capturedFields{
-		Expiration:  "",
-		LastChanged: "",
-	}
-}
-
 // In some cases we can encounter different time formats
 func parseExpiryTime(date string) (*time.Time, error) {
 	var err error
@@ -41,7 +30,7 @@ func parseExpiryTime(date string) (*time.Time, error) {
 			return &expiryTime, nil
 		}
 	}
-	return nil, fmt.Errorf("unable to parse `%s`, last parsing error: %s", err)
+	return nil, fmt.Errorf("unable to parse `%s`, last parsing error: %w", date, err)
 }
 
 type domainScraper struct {
