@@ -41,14 +41,13 @@ func (cfg *domainConfig) Validate() error {
 	case ProtocolRDAP:
 		return nil
 	case ProtocolWhoIs:
-		if cfg.CaptureFields == nil {
-			return fmt.Errorf("capture fields must be defined when the %s protocol is used.", protocol)
-		}
+		return errors.New("the WhoIs protocol support is currently in progress.")
+		//if cfg.CaptureFields == nil {
+		//	return fmt.Errorf("capture fields must be defined when the %s protocol is used.", protocol)
+		//}
 	default:
 		return fmt.Errorf("invalid protocol was provided: %s", protocol)
 	}
-
-	return nil
 }
 
 func (cfg *Config) Validate() error {
