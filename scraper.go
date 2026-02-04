@@ -60,7 +60,6 @@ func newScraper(cfg *Config, settings receiver.Settings) *domainScraper {
 }
 
 func (ds *domainScraper) start(ctx context.Context, host component.Host) error {
-	// TODO: Use the OpenTelemetry HTTP client for RDAP client
 	httpClient, err := ds.cfg.ClientConfig.ToClient(ctx, host.GetExtensions(), ds.settings)
 	if err != nil {
 		return fmt.Errorf("failed to create the HTTP client: %w", err)
