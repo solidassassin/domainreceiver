@@ -17,7 +17,7 @@ const (
 )
 
 type Config struct {
-	confighttp.ClientConfig        `mapstructure:".squash"`
+	confighttp.ClientConfig        `mapstructure:",squash"`
 	scraperhelper.ControllerConfig `mapstructure:",squash"`
 	metadata.MetricsBuilderConfig  `mapstructure:",squash"`
 	Domains                        []*domainConfig `mapstructure:"domains"`
