@@ -2,6 +2,8 @@ package domainreceiver
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -24,6 +26,23 @@ func whoisLookup(domain string, timeout uint64, fields captureFields) capturedFi
 		Expiration:  "",
 		LastChanged: "",
 	}
+}
+
+// In some cases we can encounter different time formats
+func parseExpiryTime(date string) (*time.Time, error) {
+	var err error
+	timeFormats := []string{
+		time.RFC3339,
+		time.RFC3339Nano,
+	}
+
+	for _, timeFormat := range timeFormats {
+		expiryTime, err := time.Parse(timeFormat, date)
+		if err == nil {
+			return &expiryTime, nil
+		}
+	}
+	return nil, fmt.Errorf("unable to parse `%s`, last parsing error: %s", err) 
 }
 
 type domainScraper struct {
@@ -69,7 +88,7 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 			for _, event := range domainData.Events {
 				if event.Action == "expiration" {
 
-					expiryTime, err := time.Parse(time.RFC3339, event.Date)
+					expiryTime, err := parseExpiryTime(event.Date)
 					if err != nil {
 						ds.settings.Logger.Error(
 							"Failed to parse expiry date",
