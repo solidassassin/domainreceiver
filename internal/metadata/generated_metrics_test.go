@@ -42,15 +42,6 @@ func TestMetricsBuilder(t *testing.T) {
 			resAttrsSet: testDataSetNone,
 			expectEmpty: true,
 		},
-		{
-			name:        "filter_set_include",
-			resAttrsSet: testDataSetAll,
-		},
-		{
-			name:        "filter_set_exclude",
-			resAttrsSet: testDataSetAll,
-			expectEmpty: true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -69,11 +60,9 @@ func TestMetricsBuilder(t *testing.T) {
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordDomainExpiryTimeDataPoint(ts, 1)
+			mb.RecordDomainExpiryTimeDataPoint(ts, 1, "domain.name-val")
 
-			rb := mb.NewResourceBuilder()
-			rb.SetDomainName("domain.name-val")
-			res := rb.Emit()
+			res := pcommon.NewResource()
 			metrics := mb.Emit(WithResource(res))
 
 			if tt.expectEmpty {
@@ -107,6 +96,9 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
+					attrVal, ok := dp.Attributes().Get("domain.name")
+					assert.True(t, ok)
+					assert.Equal(t, "domain.name-val", attrVal.Str())
 				}
 			}
 		})

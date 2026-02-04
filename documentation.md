@@ -20,8 +20,8 @@ Unix timestamp of when the domain expires
 | ---- | ----------- | ---------- | --------- |
 | s | Gauge | Int | Development |
 
-## Resource Attributes
+#### Attributes
 
-| Name | Description | Values | Enabled |
-| ---- | ----------- | ------ | ------- |
-| domain.name | The domain name to check expiration for | Any Str | true |
+| Name | Description | Values | Requirement Level |
+| ---- | ----------- | ------ | -------- |
+| domain.name | The domain name to check expiration for | Any Str | Recommended |

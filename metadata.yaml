@@ -7,9 +7,8 @@ status:
   codeowners:
     active: [solidassassin]
 
-resource_attributes:
+attributes:
   domain.name:
-    enabled: true
     description: The domain name to check expiration for
     type: string
 
@@ -22,4 +21,5 @@ metrics:
     unit: s
     gauge:
       value_type: int
+    attributes: [domain.name]
 

@@ -80,7 +80,7 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 					}
 
 					mu.Lock()
-					ds.mb.RecordDomainExpiryTimeDataPoint(now, int64(expiryTime.Unix()))
+					ds.mb.RecordDomainExpiryTimeDataPoint(now, int64(expiryTime.Unix()), domain.Name)
 					mu.Unlock()
 				}
 			}
