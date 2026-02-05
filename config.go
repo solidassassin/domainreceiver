@@ -12,6 +12,7 @@ import (
 type Protocol string
 
 const (
+	ProtocolEmpty Protocol = ""
 	ProtocolRDAP  Protocol = "rdap"
 	ProtocolWhoIs Protocol = "whois"
 )
@@ -40,7 +41,7 @@ func (cfg *domainConfig) Validate() error {
 	protocol := Protocol(cfg.Protocol)
 
 	switch protocol {
-	case ProtocolRDAP:
+	case ProtocolEmpty, ProtocolRDAP:
 		return nil
 	case ProtocolWhoIs:
 		return errors.New("the WhoIs protocol support is currently in progress.")
