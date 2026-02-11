@@ -29,6 +29,7 @@ func createDefaultConfig() component.Config {
 		ControllerConfig:     cfg,
 		MetricsBuilderConfig: metadata.DefaultMetricsBuilderConfig(),
 		Domains:              []*domainConfig{},
+		RateLimit:            1,
 	}
 }
 

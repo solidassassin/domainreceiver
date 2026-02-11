@@ -44,6 +44,7 @@ The following options are available:
     - `name` (required): The domain name (like `google.com`).
     - `protocol` (optional, default = `rdap`): The protocol to use for fetching the expiration date. Currently only RDAP is supported (WhoIs support is in progress).
 - `collection_interval` (optional, default = `15m`): The collection interval. If you need to monitor a lot of domains it's recommended to increase this value to avoid rate limits (`15 minutes` is already overkill for such a metric).
+- `rate_limit` (optional, default = `1`): Maximum number of RDAP/WHOIS queries per second. Uses a token bucket algorithm to smooth out requests. Set to `0` to disable rate limiting.
 
 > [!NOTE]
 > This receiver also exposes HTTP Client options (`confighttp.ClientConfig`) on the top level. These options can be found in the `confighttp` package [documentation](https://pkg.go.dev/go.opentelemetry.io/collector/config/confighttp#readme-client-configuration).

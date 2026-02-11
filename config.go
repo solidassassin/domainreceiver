@@ -22,6 +22,9 @@ type Config struct {
 	scraperhelper.ControllerConfig `mapstructure:",squash"`
 	metadata.MetricsBuilderConfig  `mapstructure:",squash"`
 	Domains                        []*domainConfig `mapstructure:"domains"`
+	// RateLimit is the maximum number of RDAP/WHOIS queries per second.
+	// Set to 0 to disable rate limiting.
+	RateLimit float64 `mapstructure:"rate_limit"`
 }
 
 type domainConfig struct {

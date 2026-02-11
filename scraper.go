@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/receiver"
 	"go.uber.org/zap"
+	"golang.org/x/time/rate"
 
 	"github.com/solidassassin/domainreceiver/internal/metadata"
 )
@@ -38,13 +39,20 @@ type domainScraper struct {
 	cfg        *Config
 	settings   component.TelemetrySettings
 	mb         *metadata.MetricsBuilder
+	limiter    *rate.Limiter
 }
 
 func newScraper(cfg *Config, settings receiver.Settings) *domainScraper {
+	var limiter *rate.Limiter
+	if cfg.RateLimit > 0 {
+		limiter = rate.NewLimiter(rate.Limit(cfg.RateLimit), 1)
+	}
+
 	return &domainScraper{
 		cfg:      cfg,
 		settings: settings.TelemetrySettings,
 		mb:       metadata.NewMetricsBuilder(cfg.MetricsBuilderConfig, settings),
+		limiter:  limiter,
 	}
 }
 
@@ -71,6 +79,17 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 	for _, domain := range ds.cfg.Domains {
 		go func(d *domainConfig) {
 			defer wg.Done()
+
+			if ds.limiter != nil {
+				if err := ds.limiter.Wait(ctx); err != nil {
+					ds.settings.Logger.Error(
+						"Rate limiter wait interrupted",
+						zap.String("domain", d.Name),
+						zap.Error(err),
+					)
+					return
+				}
+			}
 
 			domainData, err := ds.rdapClient.QueryDomain(d.Name)
 			if err != nil {
