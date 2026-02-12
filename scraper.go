@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/openrdap/rdap"
+	"github.com/openrdap/rdap/bootstrap"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
@@ -56,6 +57,13 @@ func (ds *domainScraper) start(ctx context.Context, host component.Host) error {
 
 	ds.rdapClient = &rdap.Client{
 		HTTP: httpClient,
+		Bootstrap: &bootstrap.Client{
+			HTTP: httpClient,
+		},
+	}
+	// We force RDAP do cache DNS registries on startup
+	if err := ds.rdapClient.Bootstrap.DownloadWithContext(ctx, bootstrap.DNS); err != nil {
+		return fmt.Errorf("failed to download the bootstrap DNS registry file: %w", err)
 	}
 
 	return nil
@@ -71,7 +79,7 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 	for _, domain := range ds.cfg.Domains {
 		go func(d *domainConfig) {
 			defer wg.Done()
-
+			// TODO: Implement retry logic in case rate limits are exceeded
 			domainData, err := ds.rdapClient.QueryDomain(d.Name)
 			if err != nil {
 				ds.settings.Logger.Error(
@@ -84,7 +92,6 @@ func (ds *domainScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 
 			for _, event := range domainData.Events {
 				if event.Action == "expiration" {
-
 					expiryTime, err := parseExpiryTime(event.Date)
 					if err != nil {
 						ds.settings.Logger.Error(
